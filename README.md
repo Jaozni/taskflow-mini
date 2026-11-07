@@ -32,9 +32,11 @@ Projeto em configuração inicial. A API ainda não está implementada.
 - [Project Charter](docs/project-charter.md)
 - [Requisitos](docs/requisitos.md)
 - [Casos de uso](docs/casos-de-uso.md)
+- [Histórias de usuário](docs/user-stories.md)
 
 Os demais documentos de planejamento serão adicionados
 durante a execução das issues correspondentes.
+
 
 ## Desenvolvimento
 
