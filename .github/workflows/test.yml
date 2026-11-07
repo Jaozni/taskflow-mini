@@ -1,9 +1,9 @@
 name: API tests
 on:
   push:
-    branches: ['feature/issue-14-filtros-tarefas', develop]
+    branches: ['feature/**', develop]
   pull_request:
-    branches: [develop]
+    branches: [develop, main]
 permissions:
   contents: read
 jobs:
