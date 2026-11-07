@@ -1,31 +1,47 @@
 # TaskFlow Mini
 
-API REST para gerenciamento de tarefas pessoais.
+API para gerenciamento de tarefas.
 
-## Objetivo
-
-Permitir cadastrar, listar, consultar, editar, alterar o status
-e excluir tarefas, com filtros por status e prioridade.
-
-## Stack planejada
+## Stack
 
 - Node.js
 - Express
 - SQLite
 
-## Estado atual
+## Execução
 
-Projeto em configuração inicial. A API ainda não está implementada.
+```bash
+npm install
+npm start
+```
 
-## Funcionalidades planejadas
+Por padrão, a API utiliza a porta `3000`.
 
-- [ ] Cadastro de tarefas.
-- [ ] Listagem de tarefas.
-- [ ] Consulta por ID.
-- [ ] Edição de tarefas.
-- [ ] Alteração de status.
-- [ ] Exclusão de tarefas.
-- [ ] Filtros por status e prioridade.
+Para usar outra porta:
+
+```bash
+PORT=4000 npm start
+```
+
+## Persistência
+
+O banco SQLite é criado automaticamente em `data/taskflow.db` na primeira execução.
+
+A pasta `data/` e os arquivos de banco não são versionados. Reiniciar a aplicação não apaga as tarefas existentes.
+
+## Saúde da aplicação
+
+```http
+GET /health
+```
+
+Resposta esperada:
+
+```json
+{
+  "status": "ok"
+}
+```
 
 ## Documentação
 
@@ -33,12 +49,5 @@ Projeto em configuração inicial. A API ainda não está implementada.
 - [Requisitos](docs/requisitos.md)
 - [Casos de uso](docs/casos-de-uso.md)
 - [Histórias de usuário](docs/user-stories.md)
-
-Os demais documentos de planejamento serão adicionados
-durante a execução das issues correspondentes.
-
-
-## Desenvolvimento
-
-As alterações são realizadas em branches temáticas vinculadas
-às issues do repositório.
+- [Arquitetura](docs/arquitetura.md)
+- [Rastreabilidade](docs/rastreabilidade.md)
