@@ -1,60 +1,64 @@
 # Checklist de entrega — TaskFlow Mini
 
-## Evidencias confirmadas
+## Estado consolidado
 
-### Integracao anterior
+PR #43, branch feature/issue-15-testes-readme. Alterações ainda não integradas nesta revisão. Não apresentar main ou develop como contendo a entrega antes do merge confirmado.
+
+## Histórico de evidências
 
 - PR #28 integrado em develop: https://github.com/Jaozni/taskflow-mini/pull/28
-- Commit testado c567cffe13ac37426610898df3905bc3370b6173; merge b4706bb3f8bcb5c5f1657154d66255c255dfd68b.
-- Execucoes aprovadas: https://github.com/Jaozni/taskflow-mini/actions/runs/42422647246 e https://github.com/Jaozni/taskflow-mini/actions/runs/42422647100.
-- Issue #14 encerrada apos integracao.
+- Commit anterior testado: c567cffe13ac37426610898df3905bc3370b6173; merge b4706bb3f8bcb5c5f1657154d66255c255dfd68b.
+- Execuções anteriores aprovadas: https://github.com/Jaozni/taskflow-mini/actions/runs/42422647246 e https://github.com/Jaozni/taskflow-mini/actions/runs/42422647100. Issue #14 encerrada após integração.
+- 8c2a244: lockfile real gerado pelo npm.
+- 0456501: instalação limpa via npm ci no CI Linux/Node 22.
+- f02995f: teste de desempenho HTTP real e SQLite em arquivo.
+- 434be3a: inicialização real, PORT inválida e falha SQLite.
+- a08ceb9: texto SQL literal e nomes de arquivos rastreados; jobs aprovados https://github.com/Jaozni/taskflow-mini/actions/runs/42426116997 e https://github.com/Jaozni/taskflow-mini/actions/runs/42426120857.
+- 2d6b19846da126a65e10037b2ed610a405ca2bb9: commit do log fornecido pelo usuário; 14 testes aprovados, zero falhas e 18 medições RNF10 dentro do limite.
+- fd4135e002d65fd50b888a99c049925068ef3665: relatório numérico registrado em desempenho.md; jobs aprovados https://github.com/Jaozni/taskflow-mini/actions/runs/42426945269 e https://github.com/Jaozni/taskflow-mini/actions/runs/42426949402.
 
-### PR #43, ainda sem integracao nesta revisao
-
-- 8c2a244: package-lock.json gerado pelo npm e enviado pelo usuario.
-- 0456501: CI usa npm ci em Linux com Node 22.
-- f02995f: teste de desempenho HTTP/SQLite em arquivo, ate 100 tarefas.
-- 434be3a: testes de inicializacao real e registro de validacao.
-- b16d533edf21a89c1c4aa08bbb2708e370bf0225: arquitetura e rastreabilidade consolidadas; dois jobs test aprovados:
-  - https://github.com/Jaozni/taskflow-mini/actions/runs/42425913172
-  - https://github.com/Jaozni/taskflow-mini/actions/runs/42425918447
-
-Estas evidencias pertencem aos commits indicados. Novos testes em test/delivery.test.js ainda precisam passar no CI do commit que os adiciona.
-
-## Revisao por bloco
-
-| Bloco | Evidencia atual | Limites |
-|---|---|---|
-| #7 Express | Health, JSON, servidor real e PORT configurada/invalida | Bind real com PORT ausente em 3000 nao testado |
-| #8 SQLite | Reabertura de arquivo, restricoes SQL e falha ao inicializar | Nao representa auditoria completa do banco |
-| #9 Cadastro | Contrato e matriz de invalidos sem insercao | Nao declarar exaustividade de todas as entradas |
-| #10 Leitura | Ordem, filtros, campos e integridade | Revisar criterios da issue antes de encerrar |
-| #11 Edicao | Substituicao, descricao removida, preservacao e idempotencia | Revisar criterios da issue antes de encerrar |
-| #12 Status | Conclusao, reabertura, repeticao, invalidos e preservacao | Revisar criterios da issue antes de encerrar |
-| #13 Exclusao | Todos os status, 204/404, IDs e preservacao das demais | Revisar criterios da issue antes de encerrar |
-| #14 Filtros | Isolados, AND, vazios, repetidos e invalidos | Integracao anterior registrada acima |
-| #15 Entrega | Lockfile, npm ci, testes e documentos | Medicoes numericas, validacao local e revisao final pendentes |
+Estes resultados pertencem aos commits indicados. O commit que atualiza este checklist exige sua própria verificação do CI.
 
 ## Checklist atualizado
 
-- [x] Gerar lockfile com npm e versionar, sem hashes inventados.
+- [x] Gerar e versionar package-lock.json com npm, sem inventar hashes.
 - [x] Validar npm ci em runner limpo Linux/Node 22.
-- [x] Ampliar testes de contrato, integridade, restricoes, erros e inicializacao.
-- [x] Atualizar arquitetura e rastreabilidade para implementacao real.
-- [x] Adicionar RNF10 automatizado: seis operacoes, tres medicoes, ate 100 tarefas, limite 2000 ms.
-- [ ] Transcrever ambiente e 18 tempos reais dos logs para documento de desempenho.
-- [ ] Confirmar RNF10 em execucao local conforme requisito; runner nao equivale ao computador do usuario.
-- [ ] Validar os novos testes RNF03/RNF05 do commit atual.
-- [ ] Conferir CI do ultimo commit antes de integrar.
-- [ ] Revisar criterios e encerrar somente issues efetivamente atendidas apos integracao.
-- [ ] Autorizar separadamente merge em develop, integracao em main e eventual tag.
+- [x] Ampliar testes de contrato, integridade, restrições, erros e inicialização.
+- [x] Atualizar arquitetura e rastreabilidade para os caminhos implementados.
+- [x] Verificar texto com aparência SQL tratado como dado e preservação da tabela.
+- [x] Verificar nomes rastreados: sem node_modules, ambientes privados ou bancos locais.
+- [x] Adicionar RNF10 automatizado com seis operações, três medições, até 100 tarefas e limite de 2000 ms.
+- [x] Registrar ambiente e as 18 medições reais em [desempenho.md](desempenho.md).
+- [x] Sincronizar README com lockfile, PowerShell, testes e limites conhecidos.
+- [x] Conferir os dois jobs do commit fd4135e como success.
+- [ ] Validar instalação e desempenho local conforme RNF10; runner não comprova execução no computador do usuário.
+- [ ] Testar bind real sem PORT na porta padrão 3000; valor padrão revisado no código.
+- [ ] Conferir CI do último commit antes da integração.
+- [ ] Revisar individualmente critérios das issues antes de encerrar registros.
+- [ ] Autorizar separadamente merge em develop, integração em main e eventual tag.
 
-## Limites importantes
+## Revisão por bloco
 
-Instalacao Windows/Node 24 nao concluida: better-sqlite3 11.7.0 nao encontrou binario pronto e compilacao falhou por ferramentas C++ ausentes. Nao foi declarada reproducibilidade local. A verificacao de git ls-files cobre nomes rastreados atuais, nao segredos no conteudo nem historico. Testes de parametrizacao nao substituem auditoria de seguranca.
+| Bloco | Evidência disponível | Limite da conclusão |
+|---|---|---|
+| #7 Express | Health, JSON, servidor real e PORT configurada/inválida | Bind padrão ainda não testado |
+| #8 SQLite | Reabertura de arquivo, restrições SQL e falha de inicialização | Não equivale a auditoria completa |
+| #9 Cadastro | Contrato e inválidos sem inserção | Cobertura não declarada exaustiva |
+| #10 Leitura | Listagem, ordem, filtros, campos e integridade | Revisão individual da issue antes de fechar |
+| #11 Edição | Substituição, remoção de descrição, preservação e idempotência | Revisão individual da issue antes de fechar |
+| #12 Status | Conclusão, reabertura, repetição, inválidos e preservação | Revisão individual da issue antes de fechar |
+| #13 Exclusão | Todos os status, 204/404, IDs e preservação das demais | Revisão individual da issue antes de fechar |
+| #14 Filtros | Isolados, AND, vazios, repetidos e inválidos | Integração anterior registrada acima |
+| #15 Entrega | Lockfile, CI, testes, README, documentação e medições registradas | Validação local e integração ainda pendentes |
 
-## Politica de evidencias
+## RNF10 e limites conhecidos
 
-Registrar comandos, ambiente, commit e resultados reais. Nao inventar tempos nem antecipar sucesso do CI. package.json nao comprova release; nao declarar licenca aberta sem arquivo/decisao. Nao fazer merge, tag ou fechamento de issues sem autorizacao correspondente.
+[Relatório de desempenho](desempenho.md): 18 de 18 medições <= 2000 ms; maior valor 9.905 ms. Node v22.23.4, Linux x64, CPU AMD EPYC 7763, SQLite em arquivo temporário. Evidência do runner, não do Windows do usuário. As antigas menções a transcrição numérica pendente em outros documentos foram superadas por esse relatório para o commit medido.
 
-[Validacao](validacao-entrega.md) · [Requisitos](requisitos.md) · [Rastreabilidade](rastreabilidade.md) · [README](../README.md)
+Instalação Windows/Node 24 não concluída: better-sqlite3 11.7.0 não encontrou binário pronto e a compilação falhou por falta de ferramentas C++. Verificação de git ls-files cobre nomes atuais, não segredos no conteúdo ou histórico. Testes SQL não substituem auditoria de segurança. Não há autenticação, interface gráfica, migração de esquemas ou implantação pública nesta entrega.
+
+## Política de evidências
+
+Registrar ambiente, comando, commit e resultado real. Não inventar tempos nem antecipar sucesso do CI. package.json não comprova release; não declarar licença aberta sem arquivo e decisão. Não realizar merge, tag ou fechamento sem autorização correspondente.
+
+[Índice](README.md) · [Validação](validacao-entrega.md) · [Desempenho](desempenho.md) · [Requisitos](requisitos.md) · [Rastreabilidade](rastreabilidade.md) · [README principal](../README.md)
