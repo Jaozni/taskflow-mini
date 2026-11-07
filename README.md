@@ -1,105 +1,146 @@
 # TaskFlow Mini
 
-![Versão declarada](https://img.shields.io/badge/vers%C3%A3o-0.1.0-blue)
-![Licença declarada](https://img.shields.io/badge/licen%C3%A7a-UNLICENSED-lightgrey)
-[![API tests](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml/badge.svg?branch=develop)](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml)
+![Versao declarada](https://img.shields.io/badge/versao-0.1.0-blue)
+![Licenca declarada](https://img.shields.io/badge/licenca-UNLICENSED-lightgrey)
+[![API tests da branch de entrega](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml/badge.svg?branch=feature%2Fissue-15-testes-readme)](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml)
 
-API REST local para organizar tarefas pessoais: cadastrar, consultar, editar, acompanhar status e excluir atividades. Sem interface gráfica ou autenticação nesta versão.
+API REST local para organizar tarefas pessoais: cadastrar, consultar, editar, acompanhar status e excluir atividades. Sem interface grafica ou autenticacao nesta versao.
 
-## Stack e pré-requisitos
+## Stack e pre-requisitos
 
-Node.js 22, npm, Express 4 e SQLite via better-sqlite3. O módulo nativo pode exigir ferramentas de compilação quando não houver binário disponível. UNLICENSED é a declaração do package.json; não há licença aberta adotada nem release/tag publicada comprovada por esse badge.
+Node.js 22 utilizado no CI, npm, Express 4 e SQLite via better-sqlite3 11.7.0. A declaracao engines >=22 nao comprova compatibilidade de todas as dependencias com cada versao futura. A instalacao Windows com Node 24 falhou na dependencia nativa; prefira Node 22 para reproduzir o ambiente testado. Na ausencia de binario pronto, o modulo pode exigir ferramentas de compilacao.
 
-## Instalação e execução
+UNLICENSED e a declaracao do package.json; nao foi adotada licenca aberta. O badge 0.1.0 nao comprova release ou tag publicada.
+
+## Instalar a entrega do PR #43
+
+A entrega revisada esta em feature/issue-15-testes-readme enquanto o PR nao for integrado. main nao deve ser apresentada como contendo estas alteracoes.
 
 ```sh
-git clone https://github.com/Jaozni/taskflow-mini.git
+git clone --branch feature/issue-15-testes-readme https://github.com/Jaozni/taskflow-mini.git
 cd taskflow-mini
-git checkout develop
-npm install
+npm ci
+npm test
 npm start
 ```
 
-O desenvolvimento integrado está em develop; main ainda não representa esta entrega. Porta padrão: 3000. O servidor lê PORT e DATABASE_PATH do ambiente do processo e não carrega .env automaticamente.
+O package-lock.json esta versionado. npm ci instala conforme esse arquivo e falha em caso de incompatibilidade com package.json. O CI executa instalacao limpa no Linux com Node 22 e roda a suite duas vezes.
 
-Exemplo em shell POSIX:
+### Windows PowerShell
+
+Se npm.ps1 for bloqueado, use o executavel npm.cmd sem alterar a politica de scripts:
+
+```powershell
+npm.cmd ci
+npm.cmd test
+npm.cmd start
+```
+
+Esses comandos ainda dependem de ambiente compativel com better-sqlite3; npm.cmd resolve o bloqueio do PowerShell, nao a compilacao nativa. Nao use --ignore-scripts para declarar a aplicacao instalada: o SQLite precisa de seu binario funcional.
+
+## Ambiente e persistencia
+
+Porta padrao 3000. O processo le PORT e DATABASE_PATH; nao carrega .env automaticamente. Banco padrao ./data/tasks.db, criado antes de aceitar requisicoes. CREATE TABLE IF NOT EXISTS preserva registros. Nao ha migracao automatica de esquemas antigos; nao apague banco pessoal para testar.
+
+Shell POSIX:
 
 ```sh
 PORT=3001 DATABASE_PATH=./data/tasks.db npm start
 ```
 
-O banco padrão é ./data/tasks.db. A pasta e a tabela são criadas na inicialização, antes de abrir a porta HTTP. CREATE TABLE IF NOT EXISTS não apaga registros. Não há migração automática de bancos antigos; não substitua nem apague um banco pessoal para testar. data/, bancos locais, .env e node_modules/ são ignorados pelo Git.
+PowerShell:
+
+```powershell
+$env:PORT = '3001'
+$env:DATABASE_PATH = './data/tasks.db'
+npm.cmd start
+```
+
+Dependencias, arquivos privados de ambiente e bancos locais sao ignorados pelo Git. Os testes usam bancos isolados em memoria ou arquivos temporarios.
 
 ## Funcionalidades implementadas
 
-| Método | Endpoint | Operação |
+| Metodo | Endpoint | Operacao |
 |---|---|---|
-| GET | /health | Saúde: {"status":"ok"} |
-| POST | /api/tasks | Cadastro |
+| GET | /health | Saude: 200 com {"status":"ok"}; 503 se banco indisponivel |
+| POST | /api/tasks | Cadastro, 201 |
 | GET | /api/tasks | Listagem e filtros |
 | GET | /api/tasks/:id | Consulta individual |
-| PUT | /api/tasks/:id | Substituição dos campos editáveis |
-| PATCH | /api/tasks/:id/status | Alteração de status |
-| DELETE | /api/tasks/:id | Exclusão permanente, 204 sem corpo |
+| PUT | /api/tasks/:id | Substituicao dos campos editaveis |
+| PATCH | /api/tasks/:id/status | Alteracao de status |
+| DELETE | /api/tasks/:id | Exclusao permanente, 204 sem corpo |
 
-Status: pendente, em_andamento, concluida. Prioridades: baixa, media, alta.
-Cadastro aceita title, description e priority; título é normalizado, descrição omitida vira null, prioridade omitida vira media e status inicial é pendente.
-PUT exige title e priority; descrição omitida vira null. ID, status e created_at não são editáveis por PUT. PATCH aceita somente status.
+Status: pendente, em_andamento, concluida. Prioridades: baixa, media, alta. Cadastro aceita title, description e priority; descricao omitida vira null, prioridade omitida media e status inicial pendente. PUT exige title e priority; descricao omitida remove a descricao. ID, status e created_at nao sao editaveis por PUT. PATCH aceita somente status.
+
+Exemplos em shell POSIX:
 
 ```sh
 curl http://localhost:3000/health
 curl -X POST http://localhost:3000/api/tasks -H 'Content-Type: application/json' -d '{"title":"Estudar","priority":"alta"}'
 curl 'http://localhost:3000/api/tasks?status=pendente&priority=alta'
+curl http://localhost:3000/api/tasks/1
 curl -X PUT http://localhost:3000/api/tasks/1 -H 'Content-Type: application/json' -d '{"title":"Revisar","priority":"media"}'
 curl -X PATCH http://localhost:3000/api/tasks/1/status -H 'Content-Type: application/json' -d '{"status":"concluida"}'
 curl -X DELETE http://localhost:3000/api/tasks/1
 ```
 
-IDs dos exemplos dependem dos registros do seu banco. Listagem ordenada por ID decrescente. Filtros usam AND; valores inválidos, vazios, repetidos ou parâmetros desconhecidos retornam 400. Erros usam JSON com message; recurso inexistente retorna 404 e falha interna retorna 500 sem detalhes de SQL na resposta.
+Exemplo PowerShell:
 
-## Testes e evidências
-
-```sh
-npm test
+```powershell
+Invoke-RestMethod http://localhost:3000/health
+Invoke-RestMethod -Method Post -Uri http://localhost:3000/api/tasks -ContentType 'application/json' -Body '{"title":"Estudar","priority":"alta"}'
 ```
 
-A suíte usa SQLite em memória e arquivo temporário separado do banco local. O workflow API tests executa npm test duas vezes. Dois jobs do commit c567cffe13ac37426610898df3905bc3370b6173 passaram antes do merge do PR #28; isso não comprova testes de commits posteriores. Consulte o badge e os logs para o estado atual.
+Os IDs dependem dos dados existentes. Listagem por ID decrescente; filtros combinados usam AND. Entradas invalidas retornam 400, recursos inexistentes 404 e falhas internas 500 com message generica, sem detalhes SQL na resposta.
 
-## Organização
+## Testes e evidencias
 
-src/routes associa endpoints; controllers valida e coordena respostas; validators/tasks.js centraliza contratos; models executa SQL parametrizado. src/database.js inicializa SQLite; src/app.js configura Express sem abrir porta; src/server.js inicia o processo. test/api.test.js contém os testes atuais.
+- test/api.test.js: CRUD, filtros, health, erros e persistencia apos reabrir arquivo.
+- test/acceptance.test.js: contratos, invalidos sem alteracao, integridade, idempotencia, transicoes e restricoes SQL.
+- test/startup.test.js: processo real, PORT configurada/invalida e falha SQLite.
+- test/performance.test.js: seis operacoes, tres medicoes por operacao, ate 100 tarefas, HTTP real e SQLite temporario em arquivo; limite 2000 ms.
+- test/delivery.test.js: texto com aparencia SQL preservado como dado e verificacao de nomes rastreados pelo Git.
 
-## Fluxo de trabalho
+Commit a08ceb9333dfff4b351f2f30364f0793e3afea74 aprovado em dois jobs test:
+- https://github.com/Jaozni/taskflow-mini/actions/runs/42426116997
+- https://github.com/Jaozni/taskflow-mini/actions/runs/42426120857
+
+Essas evidencias nao antecipam o resultado de commits posteriores. Tempos reais e ambiente do teste de desempenho aparecem nos diagnosticos dos logs. Nao foram transcritos para uma tabela versionada. Execucao no runner nao comprova desempenho no computador do usuario nem instalacao Windows concluida.
+
+## Organizacao
+
+src/app.js configura Express sem listen; src/server.js inicia o processo; src/config/env.js valida ambiente; src/database.js inicializa SQLite. Rotas em src/routes/, controladores em src/controllers/, modelos em src/models/ e contratos em src/validators/tasks.js. Tratamento central de erros em app.js. Testes em test/.
+
+## Fluxo de trabalho e versoes
 
 | Branch | Finalidade | Destino do PR |
 |---|---|---|
-| feature/issue-XX-descricao | Funcionalidade e testes | develop |
-| docs/issue-XX-descricao | Documentação | develop |
-| fix/issue-XX-descricao | Correção | develop |
-| develop | Integração | main após revisão da entrega |
-| main | Marcos estáveis | Sem commits diretos de desenvolvimento |
+| feature/issue-XX-descricao | Funcionalidades e testes | develop |
+| docs/issue-XX-descricao | Documentacao | develop |
+| fix/issue-XX-descricao | Correcoes | develop |
+| develop | Integracao | main apos revisao |
+| main | Marcos estaveis | Sem commits diretos de desenvolvimento |
 
-Usar Conventional Commits, como feat(tasks): adicionar filtros (#14), fix(tasks): validar ID (#10) e docs: revisar entrega (#15). Relacionar PRs às issues. Como develop não é a branch padrão, conferir e fechar issues manualmente após revisão; não presumir fechamento automático.
+Usar Conventional Commits, por exemplo feat(tasks): adicionar filtros (#14) ou docs: revisar entrega (#15). Relacionar PRs as issues e revisar criterios antes de fechar. Nao presumir fechamento automatico em develop. Tags anotadas vMAJOR.MINOR.PATCH somente apos validacao e autorizacao. Nenhum merge, tag ou release e realizado por este documento.
 
-A versão 0.1.0 identifica desenvolvimento. Tags anotadas vMAJOR.MINOR.PATCH devem ser criadas somente após validação do marco; nenhuma tag nova é criada por este documento.
+## Documentacao
 
-## Documentação
-
-- [Índice](docs/README.md)
+- [Indice](docs/README.md)
 - [Project Charter](docs/project-charter.md)
 - [Requisitos](docs/requisitos.md)
 - [Casos de uso](docs/casos-de-uso.md)
-- [Histórias de usuário](docs/user-stories.md)
+- [Historias](docs/user-stories.md)
 - [Arquitetura](docs/arquitetura.md)
 - [Rastreabilidade](docs/rastreabilidade.md)
-- [Checklist e evidências da entrega](docs/entrega.md)
+- [Checklist de entrega](docs/entrega.md)
+- [Validacao e limites](docs/validacao-entrega.md)
 
-## Pendências e limites
+## Pendencias e limites
 
-- Gerar e versionar package-lock.json real; atualmente a instalação usa npm install, não npm ci.
-- Completar cobertura dos critérios da issue #15 e atualizar arquitetura/rastreabilidade com evidências específicas.
-- Medir RNF10 no ambiente de execução e registrar resultados reais.
-- Revisar e encerrar individualmente as issues #7 a #13; a implementação consolidada não fecha esses registros automaticamente.
-- Validar o marco antes de promover develop para main ou criar tag de entrega.
+- Transcrever as 18 medicoes reais e ambiente para documento versionado; validar execucao local exigida pelo RNF10.
+- Instalacao Windows/Node 24 nao concluida; CI validado em Linux/Node 22.
+- PORT padrao revisada no codigo; bind real sem PORT na porta 3000 ainda nao testado.
+- Verificacao de nomes rastreados nao e auditoria de segredos no conteudo ou historico.
+- Revisar criterios das issues, CI do ultimo commit e autorizacao de integracao antes de fechar registros ou publicar marco.
 
-Paginação, busca, interface gráfica, autenticação e implantação pública estão fora do escopo atual. Não há migração automática de esquemas antigos.
+Busca, paginacao, interface grafica, autenticacao e implantacao publica nao estao implementadas nesta entrega. Nao ha migracao automatica de bancos antigos.
