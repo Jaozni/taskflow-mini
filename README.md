@@ -29,8 +29,10 @@ Projeto em configuração inicial. A API ainda não está implementada.
 
 ## Documentação
 
-Os documentos de planejamento serão adicionados à pasta docs/
-durante a execução das issues de documentação.
+- [Project Charter](docs/project-charter.md)
+
+Os demais documentos de planejamento serão adicionados
+durante a execução das issues correspondentes.
 
 ## Desenvolvimento
 
