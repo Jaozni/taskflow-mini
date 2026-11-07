@@ -84,12 +84,15 @@ test('exclusao por status preserva demais tarefas; IDs invalidos nao alteram dad
 test('falhas internas das operacoes nao expoem detalhes', async () => {
   const api = request(createApp({ prepare() { throw new Error('SQL segredo /caminho/privado'); } }));
   const cases = [
-    api.post('/api/tasks').send({ title: 'X' }), api.get('/api/tasks'), api.get('/api/tasks/1'),
-    api.put('/api/tasks/1').send({ title: 'X', priority: 'alta' }),
-    api.patch('/api/tasks/1/status').send({ status: 'pendente' }), api.delete('/api/tasks/1')
+    () => api.post('/api/tasks').send({ title: 'X' }),
+    () => api.get('/api/tasks'),
+    () => api.get('/api/tasks/1'),
+    () => api.put('/api/tasks/1').send({ title: 'X', priority: 'alta' }),
+    () => api.patch('/api/tasks/1/status').send({ status: 'pendente' }),
+    () => api.delete('/api/tasks/1')
   ];
   for (const operation of cases) {
-    await operation.expect(500, { message: 'Erro interno do servidor' });
+    await operation().expect(500, { message: 'Erro interno do servidor' });
   }
   await api.get('/health').expect(503, { message: 'Banco de dados indisponível' });
 });
