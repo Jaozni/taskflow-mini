@@ -1,21 +1,12 @@
-const { loadEnvironment } = require('./config/env');
-const { createDatabase } = require('./database');
 const { createApp } = require('./app');
+const { createDatabase } = require('./database');
 
-function startServer() {
-  const environment = loadEnvironment();
-  const database = createDatabase(environment.databasePath);
-  const app = createApp(database);
+const PORT = process.env.PORT || 3000;
+const DATABASE_PATH = process.env.DATABASE_PATH || './data/taskflow.db';
 
-  return app.listen(environment.port, () => {
-    console.log(`Servidor executando na porta ${environment.port}`);
-  });
-}
+const database = createDatabase(DATABASE_PATH);
+const app = createApp(database);
 
-if (require.main === module) {
-  startServer();
-}
-
-module.exports = {
-  startServer
-};
+app.listen(PORT, () => {
+  console.log(`Servidor executando na porta ${PORT}`);
+});
