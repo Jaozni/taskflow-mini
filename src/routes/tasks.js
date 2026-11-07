@@ -1,20 +1,35 @@
 const express = require('express');
-const {
-  createTask,
-  listTasks,
-  getTask,
-  updateTask,
-  updateTaskStatus,
-  deleteTask
-} = require('../controllers/tasks');
 
-const router = express.Router();
+function createTasksRouter(database) {
+  const router = express.Router();
 
-router.post('/', createTask);
-router.get('/', listTasks);
-router.get('/:id', getTask);
-router.put('/:id', updateTask);
-router.patch('/:id/status', updateTaskStatus);
-router.delete('/:id', deleteTask);
+  router.get('/', (req, res) => {
+    const tasks = database.prepare('SELECT * FROM tasks ORDER BY created_at DESC').all();
 
-module.exports = router;
+    return res.json(tasks);
+  });
+
+  router.get('/:id', (req, res) => {
+    const task = database.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
+
+    if (!task) {
+      return res.status(404).json({ message: 'Tarefa não encontrada' });
+    }
+
+    return res.json(task);
+  });
+
+  router.delete('/:id', (req, res) => {
+    const result = database.prepare('DELETE FROM tasks WHERE id = ?').run(req.params.id);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ message: 'Tarefa não encontrada' });
+    }
+
+    return res.status(204).send();
+  });
+
+  return router;
+}
+
+module.exports = createTasksRouter;
