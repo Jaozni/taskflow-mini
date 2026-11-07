@@ -30,9 +30,11 @@ Projeto em configuração inicial. A API ainda não está implementada.
 ## Documentação
 
 - [Project Charter](docs/project-charter.md)
+- [Requisitos](docs/requisitos.md)
 
 Os demais documentos de planejamento serão adicionados
 durante a execução das issues correspondentes.
+
 
 ## Desenvolvimento
 
