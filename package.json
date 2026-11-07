@@ -1,7 +1,16 @@
 {
   "name": "taskflow-mini",
   "version": "0.1.0",
-  "private": true,
-  "description": "API REST para gerenciamento de tarefas pessoais",
-  "license": "UNLICENSED"
+  "description": "API para gerenciamento de tarefas",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
 }
