@@ -1,38 +1,73 @@
 # TaskFlow Mini
 
-API REST para gerenciamento de tarefas pessoais.
+API REST para gerenciamento de tarefas, construída com Node.js, Express e SQLite.
 
-## Objetivo
+## Funcionalidades
 
-Permitir cadastrar, listar, consultar, editar, alterar o status
-e excluir tarefas, com filtros por status e prioridade.
+- Criar, listar, obter, atualizar, alterar status e remover tarefas.
+- Filtrar tarefas por status e prioridade.
+- Buscar tarefas por título ou descrição.
+- Ordenar por data de criação, prioridade ou título.
+- Paginar resultados.
+- Obter estatísticas por status e prioridade.
+- Persistência em SQLite.
+- Testes automatizados de integração.
 
-## Stack planejada
+## Requisitos
 
-- Node.js
-- Express
-- SQLite
+- Node.js 18 ou superior
+- npm
 
-## Estado atual
+## Instalação
 
-Projeto em configuração inicial. A API ainda não está implementada.
+```bash
+npm install
+```
 
-## Funcionalidades planejadas
+## Executar em desenvolvimento
 
-- [ ] Cadastro de tarefas.
-- [ ] Listagem de tarefas.
-- [ ] Consulta por ID.
-- [ ] Edição de tarefas.
-- [ ] Alteração de status.
-- [ ] Exclusão de tarefas.
-- [ ] Filtros por status e prioridade.
+```bash
+npm run dev
+```
 
-## Documentação
+## Executar em produção
 
-Os documentos de planejamento serão adicionados à pasta docs/
-durante a execução das issues de documentação.
+```bash
+npm start
+```
 
-## Desenvolvimento
+## Executar testes
 
-As alterações são realizadas em branches temáticas vinculadas
-às issues do repositório.
+```bash
+npm test
+```
+
+## Documentação da API
+
+A documentação completa está disponível em [docs/API.md](docs/API.md).
+
+## Endpoints principais
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/tasks` | Lista tarefas |
+| GET | `/api/tasks/stats` | Estatísticas |
+| GET | `/api/tasks/:id` | Detalhes de uma tarefa |
+| POST | `/api/tasks` | Cria tarefa |
+| PUT | `/api/tasks/:id` | Atualiza tarefa |
+| PATCH | `/api/tasks/:id/status` | Atualiza status |
+| DELETE | `/api/tasks/:id` | Remove tarefa |
+
+## Estrutura
+
+```text
+src/
+  app.js
+  database.js
+  routes/
+  controllers/
+  models/
+  validators/
+tests/
+docs/
+```
