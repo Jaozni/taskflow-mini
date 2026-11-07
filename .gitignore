@@ -1,28 +1,9 @@
-# Dependências
 node_modules/
-
-# Variáveis de ambiente
 .env
 .env.*
-!.env.example
-
-# Logs
 *.log
-
-# Bancos de dados locais
+logs/
 data/
-*.sqlite
-*.sqlite3
 *.db
-*.db-journal
-*.db-wal
 *.db-shm
-*.sqlite*
-*.sqlite3*
-
-# Cobertura de testes
-coverage/
-
-# Arquivos do sistema operacional
-.DS_Store
-Thumbs.db
+*.db-wal
