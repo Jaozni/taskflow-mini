@@ -1,24 +1,9 @@
-const PRIORITIES = ['baixa', 'média', 'alta'];
-const STATUSES = ['pendente', 'em progresso', 'concluída'];
+const { validateCreateTask } = require('./tasks');
 
+// Compatibilidade para imports antigos; o router usa os controllers.
 function validateTaskPayload(payload) {
-  const errors = [];
-
-  if (typeof payload.title !== 'string' || payload.title.trim() === '') {
-    errors.push('O título é obrigatório.');
-  }
-
-  if (payload.priority !== undefined && !PRIORITIES.includes(payload.priority)) {
-    errors.push('Prioridade inválida.');
-  }
-
-  if (payload.status !== undefined && !STATUSES.includes(payload.status)) {
-    errors.push('Status inválido.');
-  }
-
-  return errors;
+  const validation = validateCreateTask(payload);
+  return validation.isValid ? [] : [validation.message];
 }
 
-module.exports = {
-  validateTaskPayload
-};
+module.exports = { validateTaskPayload };
