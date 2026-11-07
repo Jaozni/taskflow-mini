@@ -1,0 +1,7 @@
+{
+  "name": "taskflow-mini",
+  "version": "0.1.0",
+  "private": true,
+  "description": "API REST para gerenciamento de tarefas pessoais",
+  "license": "UNLICENSED"
+}
