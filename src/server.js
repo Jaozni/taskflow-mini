@@ -1,21 +1,9 @@
-const { loadEnvironment } = require('./config/env');
-const { createDatabase } = require('./database');
 const { createApp } = require('./app');
 
-function startServer() {
-  const environment = loadEnvironment();
-  const database = createDatabase(environment.databasePath);
-  const app = createApp(database);
+const PORT = process.env.PORT || 3000;
 
-  return app.listen(environment.port, () => {
-    console.log(`Servidor executando na porta ${environment.port}`);
-  });
-}
+const app = createApp();
 
-if (require.main === module) {
-  startServer();
-}
-
-module.exports = {
-  startServer
-};
+app.listen(PORT, () => {
+  console.log(`Servidor executando na porta ${PORT}`);
+});
