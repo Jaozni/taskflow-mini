@@ -1,52 +1,65 @@
-# Validacao da entrega — PR #43
+# Validação da entrega — TaskFlow Mini
 
-## Evidencias existentes
+## Estado e escopo
 
-- Lockfile gerado com npm pelo usuario: commit 8c2a244.
-- Workflow alterado para npm ci: commit 0456501.
-- Teste RNF10 com SQLite em arquivo e HTTP real: commit f02995f24cbaf931e725d7b1bfa2fc25bb5cd8aa.
-- Jobs test confirmados como success: https://github.com/Jaozni/taskflow-mini/actions/runs/42425412282 e https://github.com/Jaozni/taskflow-mini/actions/runs/42425407598.
-- Estas execucoes sao anteriores aos novos testes de inicializacao deste documento. O CI do novo commit precisa ser consultado antes da integracao.
+O PR #43 foi integrado em develop; o PR #44 publicou a entrega em main. Os PRs #45 e #46 sincronizaram README, Charter e rastreabilidade. O merge do PR #46 é 0680baba609cfde957da6ece2038ce8804f9397f.
 
-## Organizacao implementada
+A tag anotada v0.1.0 permanece no merge do PR #44, d53bad270c2f0ad0415e7b9665e086f98dd2b187. Esta revisão documental não altera a tag, não modifica código nem fecha issues.
 
-- src/app.js configura Express, rotas e tratamento de erros, sem abrir porta.
-- src/server.js carrega ambiente, abre o banco e depois inicia listen.
-- src/config/env.js valida PORT e DATABASE_PATH; porta padrao 3000.
-- src/database.js cria diretorio, abre SQLite e inicializa esquema.
-- src/routes/tasks.js encaminha operacoes para controladores e modelos.
-- src/routes/health.js implementa verificacao de saude.
-- src/controllers/tasks.js coordena operacoes; src/models/tasks.js acessa SQLite.
-- test/acceptance.test.js cobre contrato, validacoes, integridade, transicoes, erros e restricoes SQL.
-- test/api.test.js contem os testes existentes de API e persistencia.
-- test/performance.test.js mede seis operacoes, tres vezes cada, sem concorrencia e com no maximo 100 tarefas.
-- test/startup.test.js inicia processos reais para PORT configurada, PORT invalida e falha SQLite.
+## Evidências automatizadas
 
-Esta organizacao corrige os caminhos planejados database/connection.js e tests/ da arquitetura original: os caminhos implementados sao src/database.js e test/. O middleware de erros esta em src/app.js.
+Os dois checks do head 49e2795c54a980da4e73f3ddc365b86233190f6e do PR #46 terminaram com success antes do merge:
+- https://github.com/Jaozni/taskflow-mini/actions/runs/42431830110
+- https://github.com/Jaozni/taskflow-mini/actions/runs/42432731413
 
-## Rastreabilidade complementar
+A aprovação se refere aos commits testados, não automaticamente a alterações posteriores.
 
-| Requisito | Evidencia e limite |
+## Organização implementada
+
+- src/app.js: configuração do Express sem abrir porta e tratamento central de erros.
+- src/server.js: ambiente, banco e início do servidor.
+- src/config/env.js: validação de PORT e DATABASE_PATH.
+- src/database.js: diretório, SQLite e esquema.
+- src/routes/: endpoints.
+- src/controllers/: coordenação das operações.
+- src/models/: acesso aos dados.
+- src/validators/: contratos de entrada.
+- test/: testes automatizados.
+
+## Evidências por requisito
+
+| Requisito | Evidência e limite |
 |---|---|
-| RNF01, RNF04 | acceptance.test.js: contrato e falhas controladas |
-| RNF02 | api.test.js: persistencia apos reabrir arquivo |
-| RNF06 | createApp utilizado sem iniciar server.js |
-| RNF07 | Workflow executa npm test duas vezes |
-| RNF08 | Lockfile e npm ci no runner Linux com Node 22; nao comprova instalacao local Windows |
-| RNF09 | startup.test.js cobre PORT definida e invalida; valor padrao revisado no codigo, sem teste de bind real em 3000 |
-| RNF10 | performance.test.js: 18 medicoes com limite de 2000 ms; resultados numericos ficam nos logs dos jobs |
-| RNF11 | Separacao de app, servidor, rotas, controladores, modelos e banco descrita acima |
+| RNF01, RNF04 | Testes de contrato, erros JSON e falhas controladas |
+| RNF02 | Persistência após fechar e reabrir arquivo em test/api.test.js |
+| RNF03 | test/delivery.test.js verifica texto SQL literal em cadastro/edição, leitura, filtro inválido e preservação da tabela; não é auditoria completa |
+| RNF05 | test/delivery.test.js consulta git ls-files e rejeita dependências, ambientes privados e bancos rastreados; não audita todo o conteúdo e histórico |
+| RNF06 | Aplicação utilizada sem iniciar server.js nos testes de API |
+| RNF07 | Workflow documentado executa suíte duas vezes com bancos isolados |
+| RNF08 | Lockfile e npm ci no CI Linux/Node 22; instalação local Windows não validada |
+| RNF09 | test/startup.test.js cobre porta configurada/inválida; test/default-port.test.js inicia processo sem PORT e consulta /health em 127.0.0.1:3000 |
+| RNF10 | test/performance.test.js realiza 18 medições sequenciais com HTTP real, SQLite temporário e até 100 tarefas; relatório em desempenho.md, execução local do usuário pendente |
+| RNF11 | Separação de responsabilidades descrita acima e em arquitetura.md |
 
-## Limites e pendencias honestas
+A matriz completa em rastreabilidade.md relaciona requisitos funcionais, casos de uso, histórias e issues. A existência de testes não comprova cobertura exaustiva de todos os critérios.
 
-- A instalacao local no Windows com Node 24 falhou no better-sqlite3 11.7.0; nao foi declarada concluida.
-- O teste de desempenho no runner e evidencia automatizada de loopback local ao runner, nao de desempenho no computador do usuario. RNF10 pede execucao local; validar interpretacao e, se exigido, executar em ambiente local compativel.
-- Nao foram copiados tempos numericos dos logs para este documento. Consultar os diagnosticos operation/run/milliseconds; nao inventar valores.
-- RNF03 e RNF05 ainda exigem revisao especifica de SQL e arquivos rastreados antes de declarar cobertura integral.
-- Nao foram realizados merge, fechamento de issues, publicacao de release ou tag.
+## Desempenho
 
-## Verificacao do commit final
+Os 18 valores e o ambiente da execução histórica do commit 2d6b19846da126a65e10037b2ed610a405ca2bb9 estão transcritos em desempenho.md. Todas as medições atenderam ao limite de 2000 ms no runner registrado; a maior foi 9.905 ms. Não reutilizar como resultado de outro ambiente ou commit.
 
-Aguardar ambos os jobs test do novo commit. Falhas devem ser corrigidas antes do merge. Registrar o SHA e links da execucao final apos a conclusao.
+## Validação local e limitações
 
-Este registro complementa [arquitetura](arquitetura.md), [rastreabilidade](rastreabilidade.md) e [checklist](entrega.md), sem transformar previsoes em evidencias.
+A instalação Windows/Node 24 apresentou falha em better-sqlite3. Na tentativa local posterior, Node v24.13.0 retornou Cannot find module 'supertest'. O teste não iniciou as medições.
+
+Isso não demonstra lentidão da API, mas impede comprovar a validação local do RNF10. Resultados no runner não substituem essa evidência. Nenhuma execução local bem-sucedida está declarada nesta revisão.
+
+Não há autenticação, implantação pública ou migração automática de bancos antigos. Testes SQL e revisão de nomes rastreados não equivalem a auditoria completa de segurança.
+
+## Próximas verificações
+
+- Conferir checks do novo commit documental antes da integração.
+- Revisar critérios individuais das issues antes de atualizar checkboxes ou fechar registros.
+- Concluir validação local em ambiente compatível e registrar SHA, comandos, ambiente e medições reais.
+- Confirmar que a documentação final foi integrada em main antes da conferência de entrega.
+
+[Arquitetura](arquitetura.md) · [Rastreabilidade](rastreabilidade.md) · [Checklist](entrega.md) · [Desempenho](desempenho.md)
