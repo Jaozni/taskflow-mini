@@ -4,27 +4,21 @@
 ![Licença declarada](https://img.shields.io/badge/licenca-UNLICENSED-lightgrey)
 [![Testes da main](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml)
 
-API REST local para gerenciar tarefas pessoais com Node.js, Express e SQLite. O projeto conecta documentação de planejamento, requisitos, histórias de usuário, issues, branches, Pull Requests e testes.
+API REST local para organizar tarefas pessoais com Node.js, Express e SQLite. A entrega revisada foi integrada em main pelo PR #44.
 
 ## Funcionalidades
 
-Implementadas: cadastro, listagem, consulta por ID, edição, alteração de status, exclusão, filtros por status e prioridade e verificação de saúde.
+Implementadas: cadastro, listagem, consulta por ID, edição, alteração de status, exclusão, filtros por status e prioridade e endpoint de saúde.
 
-Não implementadas nesta entrega: busca textual, paginação, interface gráfica, autenticação, implantação pública e migração automática de bancos antigos. Evoluções dependem da revisão do backlog.
+Fora desta versão: busca textual, paginação, interface gráfica, autenticação, implantação pública e migração automática de bancos antigos. Evoluções dependem da revisão do backlog.
 
 ## Tecnologias e pré-requisitos
 
-- Node.js 22: ambiente utilizado no CI documentado.
-- npm para dependências e scripts.
-- Express 4 para a API HTTP.
-- SQLite via better-sqlite3 11.7.0 para persistência.
-- GitHub Actions para testes automatizados.
+Node.js 22, npm, Express 4 e SQLite via better-sqlite3 11.7.0. GitHub Actions executa testes automatizados.
 
-Prefira Node.js 22 para reproduzir o ambiente documentado. A declaração engines >=22 não comprova compatibilidade de todas as dependências com versões futuras. A instalação Windows/Node 24 apresentou falha na dependência nativa. Na ausência de binário compatível, better-sqlite3 pode exigir ferramentas de compilação.
+Prefira Node.js 22 para reproduzir o ambiente de CI documentado. engines >=22 não comprova compatibilidade com todas as versões futuras. A instalação Windows/Node 24 falhou na dependência nativa. Na ausência de binário compatível, better-sqlite3 pode exigir ferramentas de compilação.
 
 ## Instalação e execução
-
-Estas instruções destinam-se à main após a integração da entrega revisada. Enquanto a integração estiver pendente, consulte o PR #44.
 
 ```sh
 git clone --branch main https://github.com/Jaozni/taskflow-mini.git
@@ -34,7 +28,7 @@ npm test
 npm start
 ```
 
-O package-lock.json está versionado. npm ci exige consistência com package.json. Confira o resultado dos testes antes de considerar o ambiente validado.
+package-lock.json está versionado. npm ci exige consistência com package.json. Confira o resultado dos comandos; a execução no CI não comprova instalação no seu computador.
 
 Em outro terminal:
 
@@ -42,11 +36,11 @@ Em outro terminal:
 curl http://localhost:3000/health
 ```
 
-Com o banco disponível, a resposta esperada é 200 com {"status":"ok"}.
+Com o banco disponível, a resposta esperada é HTTP 200 com {"status":"ok"}.
 
 ### Windows PowerShell
 
-Se npm.ps1 estiver bloqueado, utilize:
+Se npm.ps1 estiver bloqueado:
 
 ```powershell
 npm.cmd ci
@@ -60,7 +54,7 @@ Em outro terminal:
 Invoke-RestMethod -Uri http://localhost:3000/health
 ```
 
-O uso de npm.cmd contorna o bloqueio do script, mas não resolve compilação nativa. Não utilize --ignore-scripts como evidência de instalação funcional: SQLite depende de seu binário.
+npm.cmd contorna o bloqueio do script, mas não resolve compilação nativa. Não utilize --ignore-scripts como evidência de instalação funcional do SQLite.
 
 ## Ambiente e persistência
 
@@ -85,7 +79,7 @@ $env:DATABASE_PATH = './data/tasks.db'
 npm.cmd start
 ```
 
-O banco é preparado antes de aceitar requisições. CREATE TABLE IF NOT EXISTS preserva registros existentes. Não há migração automática de esquemas antigos; não apague bancos pessoais para testar. Dependências, arquivos privados de ambiente e bancos locais são ignorados conforme .gitignore. Testes usam bancos isolados em memória ou arquivos temporários.
+O banco é preparado antes de aceitar requisições. CREATE TABLE IF NOT EXISTS preserva registros. Não há migração automática de esquemas antigos; não apague bancos pessoais para testar. Dependências, arquivos privados de ambiente e bancos locais são ignorados conforme .gitignore. Testes utilizam bancos isolados.
 
 ## Endpoints e contratos
 
@@ -101,19 +95,14 @@ O banco é preparado antes de aceitar requisições. CREATE TABLE IF NOT EXISTS 
 
 Status: pendente, em_andamento, concluida. Prioridades: baixa, media, alta.
 
-Cadastro aceita title, description e priority. Descrição omitida recebe null; prioridade omitida recebe media; status inicial é pendente.
+Cadastro aceita title, description e priority. Descrição omitida recebe null; prioridade omitida recebe media; status inicial é pendente. PUT exige title e priority; descrição omitida remove a descrição. ID, status e created_at não são editáveis por PUT. PATCH aceita somente status.
 
-PUT exige title e priority; descrição omitida remove a descrição. ID, status e created_at não são editáveis por PUT. PATCH aceita somente status.
+Listagem por ID decrescente; filtros combinados usam AND. Entradas inválidas retornam 400, recursos inexistentes 404 e falhas internas 500 com mensagem genérica, sem detalhes SQL.
 
-Listagem por ID decrescente. Filtros combinados usam AND. Entradas inválidas retornam 400, recursos inexistentes 404 e falhas internas 500 com mensagem genérica, sem detalhes SQL.
-
-## Exemplos de uso
-
-Exemplos para shell POSIX, com aplicação em execução:
+### Exemplos em shell POSIX
 
 ```sh
 curl -X POST http://localhost:3000/api/tasks -H 'Content-Type: application/json' -d '{"title":"Estudar","priority":"alta"}'
-curl http://localhost:3000/api/tasks
 curl 'http://localhost:3000/api/tasks?status=pendente&priority=alta'
 curl http://localhost:3000/api/tasks/1
 curl -X PUT http://localhost:3000/api/tasks/1 -H 'Content-Type: application/json' -d '{"title":"Revisar","priority":"media"}'
@@ -121,7 +110,7 @@ curl -X PATCH http://localhost:3000/api/tasks/1/status -H 'Content-Type: applica
 curl -X DELETE http://localhost:3000/api/tasks/1
 ```
 
-Substitua 1 pelo ID real retornado no cadastro ou na listagem. A exclusão é permanente.
+Substitua 1 pelo ID real. A exclusão é permanente.
 
 Cadastro no PowerShell:
 
@@ -132,26 +121,26 @@ Invoke-RestMethod -Method Post -Uri http://localhost:3000/api/tasks -ContentType
 
 ## Testes e evidências
 
-Execute npm test, ou npm.cmd test no PowerShell. A documentação da entrega descreve:
+Execute npm test, ou npm.cmd test no PowerShell.
 
-| Arquivo | Verificações |
+| Arquivo | Verificações descritas |
 |---|---|
-| test/api.test.js | CRUD, filtros, saúde, erros e persistência após reabrir arquivo |
-| test/acceptance.test.js | Contratos, entradas inválidas sem alteração, integridade, idempotência, transições e restrições SQL |
+| test/api.test.js | CRUD, filtros, saúde, erros e persistência |
+| test/acceptance.test.js | Contratos, integridade, idempotência, transições e restrições SQL |
 | test/startup.test.js | Processo real, porta configurada/inválida e falha SQLite |
-| test/performance.test.js | Seis operações, três medições por operação, até 100 tarefas, HTTP real, SQLite temporário e limite de 2000 ms |
-| test/delivery.test.js | Texto com aparência SQL preservado como dado e nomes rastreados pelo Git |
+| test/default-port.test.js | Processo sem PORT e consulta HTTP real na porta 3000 |
+| test/performance.test.js | Seis operações, três medições por operação, até 100 tarefas e limite de 2000 ms |
+| test/delivery.test.js | Texto com aparência SQL preservado como dado e arquivos rastreados |
 
-A documentação histórica registra aprovação do commit a08ceb9333dfff4b351f2f30364f0793e3afea74 nestas execuções:
+Os dois jobs test do PR #44 passaram para o commit 595643b429bdc4c052f2fd180e9e63653781134b antes do merge. Novos commits exigem nova conferência dos checks.
 
-- https://github.com/Jaozni/taskflow-mini/actions/runs/42426116997
-- https://github.com/Jaozni/taskflow-mini/actions/runs/42426120857
+[O relatório de desempenho](docs/desempenho.md) já registra as 18 medições históricas e o ambiente do commit 2d6b19846da126a65e10037b2ed610a405ca2bb9. Todas atenderam ao limite no runner informado. Não reutilize esses valores como medições de outro commit ou computador.
 
-Essas evidências não comprovam resultados de commits posteriores. O CI documentado utiliza Linux/Node 22, instalação limpa e duas execuções da suíte. Confira os checks do commit efetivamente entregue. Execução em runner não comprova instalação Windows nem desempenho local.
+O CI documentado utiliza Linux/Node 22, instalação limpa e duas execuções da suíte. Isso não comprova instalação Windows nem desempenho local.
 
 ## Organização
 
-- src/app.js: Express sem listen e tratamento central de erros.
+- src/app.js: configuração do Express sem listen e tratamento central de erros.
 - src/server.js: inicialização do processo.
 - src/config/env.js: validação de ambiente.
 - src/database.js: inicialização SQLite.
@@ -159,8 +148,8 @@ Essas evidências não comprovam resultados de commits posteriores. O CI documen
 - src/controllers/: controladores.
 - src/models/: operações de dados.
 - src/validators/: contratos de entrada.
-- test/: testes automatizados.
-- docs/: planejamento e documentação de engenharia.
+- test/: testes.
+- docs/: documentação de planejamento e engenharia.
 
 ## Documentação
 
@@ -185,26 +174,25 @@ Essas evidências não comprovam resultados de commits posteriores. O CI documen
 | develop | Integração | main após revisão |
 | main | Marcos estáveis | Recebe alterações por PR |
 
-Não realizar commits diretos de desenvolvimento em main. Utilizar commits pequenos e coerentes com Conventional Commits, por exemplo feat(tasks): adicionar filtros (#14) e docs(readme): revisar entrega (#15).
-
-Issues devem conter labels e critérios de aceite. Referenciar issues em branches, commits e PRs. Utilizar Closes somente após conferir os critérios. Não presumir fechamento automático em develop. Revisar PRs repetidos ou substituídos individualmente.
+Não realizar commits diretos de desenvolvimento em main. Utilizar commits pequenos e coerentes com Conventional Commits, por exemplo feat(tasks): adicionar filtros (#14). Relacionar issues, branches, commits e PRs. Utilizar Closes somente após conferir os critérios. Não presumir fechamento automático em develop. Revisar PRs repetidos individualmente.
 
 ## Versionamento e licença
 
-Versão declarada: 0.1.0. Marcos devem seguir SemVer (MAJOR.MINOR.PATCH) e utilizar tags Git anotadas após validação. O badge não comprova publicação de tag ou Release; consulte as tags do repositório.
+A tag anotada v0.1.0 foi publicada no commit d53bad270c2f0ad0415e7b9665e086f98dd2b187, referente ao merge do PR #44. Alterações documentais posteriores não fazem parte daquela tag e não devem movê-la.
+
+Novos marcos devem seguir SemVer (MAJOR.MINOR.PATCH), com tags anotadas após validação.
 
 O package.json declara UNLICENSED. Não foi adotada licença aberta.
 
 ## Pendências e limitações
 
 - Confirmar e registrar a execução local prevista no RNF10.
-- Instalação Windows/Node 24 não concluída; evidências históricas em Linux/Node 22.
-- Conferir a evidência de inicialização real sem PORT na porta padrão 3000.
-- Conferir o registro das 18 medições reais de desempenho e do ambiente em documento versionado.
-- A verificação de nomes rastreados não equivale a auditoria de segredos no conteúdo ou histórico.
+- Instalação Windows/Node 24 não concluída; CI documentado em Linux/Node 22.
+- A transcrição das 18 medições já existe em docs/desempenho.md; não comprova desempenho no computador do usuário.
+- O teste da porta padrão existe em test/default-port.test.js; não é validação manual do ambiente Windows.
+- A verificação de arquivos rastreados não equivale a auditoria de segredos no conteúdo ou histórico.
 - Não há autenticação, implantação pública ou migração automática de bancos antigos.
-- Conferir critérios antes de fechar issues e revisar o CI do commit entregue.
+- Conferir critérios antes de fechar issues e revisar os checks do commit entregue.
 - Revisar PRs repetidos ou substituídos sem integrar alterações indiscriminadamente.
-- Criar tag anotada somente após validar o marco.
 
-Atualize as pendências quando houver evidências de conclusão. Não remova uma limitação apenas para apresentar o projeto como finalizado.
+Atualize as pendências com evidências. Não remova uma limitação apenas para apresentar o projeto como finalizado.
