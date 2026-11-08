@@ -1,91 +1,50 @@
 # Arquitetura — TaskFlow Mini
 
-## Estado
+## Estado e evidencias
 
-Arquitetura planejada na issue #6. Este documento não comprova implementação ou execução de testes.
+Implementacao revisada na branch feature/issue-15-testes-readme, PR #43. Commit 434be3ada3d146b28cdd5cc6deabb04cd971a951 validado por dois jobs test com success:
+- https://github.com/Jaozni/taskflow-mini/actions/runs/42425633119
+- https://github.com/Jaozni/taskflow-mini/actions/runs/42425636821
 
-## Contexto e componentes
+Estes resultados nao comprovam instalacao no Windows do usuario nem release publicada. Detalhes e limites: [validacao](validacao-entrega.md).
 
-Usuário → cliente HTTP → API Node.js/Express → SQLite local. Não há interface gráfica, autenticação ou separação por usuário. A aplicação destina-se à execução local, não à exposição pública nesta versão.
+## Componentes implementados
 
-## Organização proposta
+Cliente HTTP -> Express -> rotas -> controladores -> modelos -> SQLite local.
 
-```text
-src/
-  app.js
-  server.js
-  routes/tasks.js
-  controllers/tasks.js
-  models/tasks.js
-  database/connection.js
-  middleware/errors.js
-  validators/tasks.js
-tests/
-data/ (não versionada)
-```
+- src/app.js: configura Express, JSON, rotas, 404 e middleware de erros; nao abre porta.
+- src/server.js: carrega ambiente, inicializa banco e inicia listen.
+- src/config/env.js: PORT entre 1 e 65535, padrao 3000; DATABASE_PATH padrao ./data/tasks.db.
+- src/database.js: cria diretorio, abre SQLite e inicializa esquema preservando dados existentes.
+- src/routes/tasks.js e src/routes/health.js: endpoints de tarefas e saude.
+- src/controllers/tasks.js: coordenacao das operacoes e respostas HTTP.
+- src/models/tasks.js: consultas parametrizadas; filtros montados com condicoes fixas e valores vinculados.
+- test/: testes de API, aceitacao, desempenho e inicializacao real.
 
-- app.js configura e exporta a aplicação sem abrir porta.
-- server.js inicializa o banco antes de aceitar requisições e utiliza PORT ou 3000.
-- Rotas associam métodos e caminhos aos controladores.
-- Controladores validam entradas e coordenam respostas.
-- Validadores centralizam regras de ID, corpo e filtros.
-- Modelos executam SQL parametrizado.
-- database/connection.js cria a pasta local, abre o banco e inicializa o esquema sem apagar dados.
-- O tratamento de erros retorna JSON com message, sem detalhes internos.
-- Testes usam banco isolado, nunca o banco pessoal.
+Nao existem src/database/connection.js nem pasta tests/ no desenho implementado. O tratamento de erros esta em app.js, nao em middleware/errors.js.
 
-## Modelo de dados
+## Dados e contratos
 
-| Campo | Tipo SQLite | Restrições e padrão |
+Tarefa: id, title, description, priority, status, created_at. SQLite aplica PRIMARY KEY AUTOINCREMENT, titulo obrigatorio nao vazio, prioridade baixa/media/alta, status pendente/em_andamento/concluida e data UTC automatica. description aceita NULL.
+
+| Metodo | Rota | Sucesso |
 |---|---|---|
-| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
-| title | TEXT | NOT NULL; título não vazio após remoção de espaços nas extremidades |
-| description | TEXT | Aceita NULL; padrão NULL |
-| priority | TEXT | NOT NULL; CHECK em baixa, media, alta; padrão media |
-| status | TEXT | NOT NULL; CHECK em pendente, em_andamento, concluida; padrão pendente |
-| created_at | TEXT | NOT NULL; data e hora UTC geradas automaticamente |
+| GET | /health | 200; 503 se banco indisponivel |
+| POST | /api/tasks | 201 |
+| GET | /api/tasks | 200 |
+| GET | /api/tasks/:id | 200 |
+| PUT | /api/tasks/:id | 200 |
+| PATCH | /api/tasks/:id/status | 200 |
+| DELETE | /api/tasks/:id | 204 sem corpo |
 
-Não há relacionamentos com outras entidades. O banco fica em data/. A validação do backend complementa as restrições SQL e segue requisitos.md, incluindo rejeição de títulos com apenas espaços.
+Listagem por ID decrescente. Filtros status/priority combinados por AND. PUT exige title e priority; description omitida remove o valor. PATCH altera somente status. Validacao de ID precede corpo e existencia, exceto rejeicao antecipada do parser JSON. Erros usam JSON com message, sem detalhes internos na resposta. Nao ha autenticacao nem isolamento por usuario; esta versao destina-se a uso local, nao exposicao publica.
 
-## Contratos HTTP
+## Verificacao e reproducibilidade
 
-| Método | Rota | Finalidade | Sucesso |
-|---|---|---|---|
-| GET | /health | Saúde da aplicação | 200 |
-| POST | /api/tasks | Cadastro | 201 |
-| GET | /api/tasks | Listagem e filtros status/priority | 200 |
-| GET | /api/tasks/:id | Consulta individual | 200 |
-| PUT | /api/tasks/:id | Substituir campos editáveis | 200 |
-| PATCH | /api/tasks/:id/status | Alterar somente status | 200 |
-| DELETE | /api/tasks/:id | Exclusão permanente | 204 sem corpo |
+Node 22 no CI; package-lock.json versionado; npm ci seguido de duas execucoes de npm test. Banco de teste isolado. performance.test.js realiza 18 medicoes sequenciais com HTTP real e SQLite temporario, no maximo 100 tarefas e limite de 2000 ms. startup.test.js cobre PORT configurada, PORT invalida e falha SQLite. Bind real na porta padrao 3000 nao foi testado.
 
-Respostas de tarefa contêm id, title, description, priority, status e created_at. Listagens retornam array por ID decrescente, inclusive [] quando vazias. PUT exige title e priority; description omitida remove a descrição. Campos controlados pelo sistema não são editáveis. PATCH aceita somente status e permite todas as transições entre valores válidos.
+## Integracao e versionamento
 
-Erros: 400 para entradas inválidas, 404 para recurso ou rota inexistente e 500 para falha interna. Formato: {"message":"Descrição do erro"}. Nas rotas com ID e corpo, validar ID, depois corpo e depois existência. JSON malformado pode ser rejeitado antes. Filtros combinados utilizam AND; filtros vazios, repetidos ou desconhecidos são rejeitados.
+Branches tematicas integram por PR em develop; main recebe marcos revisados por PR de develop. Nao presumir fechamento automatico de issues ao integrar em develop. Tags anotadas vMAJOR.MINOR.PATCH apenas apos validacao e autorizacao. package.json 0.1.0 nao comprova release. Nao foram feitos merge, tag ou publicacao nesta revisao.
 
-## Fluxo de branches
-
-| Branch | Uso | Integração |
-|---|---|---|
-| main | Marcos estáveis e branch padrão | PR de develop |
-| develop | Integração do desenvolvimento | PR de branch temática |
-| feature/issue-XX-descricao | Funcionalidades/configuração | PR para develop |
-| docs/issue-XX-descricao | Documentação | PR para develop |
-| fix/issue-XX-descricao | Correções | PR para develop |
-
-Não fazer commits diretamente na main. Usar Conventional Commits pequenos e referências às issues. Registrar Closes #N no PR; como develop não é a branch padrão, não presumir fechamento automático ao integrar nela. Registrar o PR na issue e fechar manualmente após revisão dos critérios.
-
-Exceção inicial: main e develop foram criadas a partir do commit da issue #1, sem PR por ausência de diferenças. A exceção está registrada na issue.
-
-## Versionamento e verificação
-
-Marcos validados receberão tags Git anotadas no formato vMAJOR.MINOR.PATCH, respeitando SemVer. Não criar tag de marco estável antes da verificação correspondente. Commits e testes futuros não devem ser apresentados como já executados.
-
-A versão inicial 0.1.0 do package.json identifica desenvolvimento; não comprova release publicada. A documentação de execução e os links serão consolidados no README na issue #15.
-
-## Referências internas
-
-- [Requisitos](requisitos.md)
-- [Casos de uso](casos-de-uso.md)
-- [Histórias](user-stories.md)
-- [Rastreabilidade](rastreabilidade.md)
+[Requisitos](requisitos.md) · [Casos de uso](casos-de-uso.md) · [Historias](user-stories.md) · [Rastreabilidade](rastreabilidade.md)
