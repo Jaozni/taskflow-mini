@@ -1,34 +1,126 @@
 # TaskFlow Mini
 
-![Versao declarada](https://img.shields.io/badge/versao-0.1.0-blue)
-![Licenca declarada](https://img.shields.io/badge/licenca-UNLICENSED-lightgrey)
-[![API tests da branch de entrega](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml/badge.svg?branch=feature%2Fissue-15-testes-readme)](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml)
+![Versão declarada](https://img.shields.io/badge/versao-0.1.0-blue)
+![Licença declarada](https://img.shields.io/badge/licenca-UNLICENSED-lightgrey)
+[![Testes da main](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Jaozni/taskflow-mini/actions/workflows/test.yml?query=branch%3Amain)
 
-API REST local para organizar tarefas pessoais: cadastrar, consultar, editar, acompanhar status e excluir atividades. Sem interface grafica ou autenticacao nesta versao.
+API REST local para gerenciamento de tarefas pessoais, desenvolvida com Node.js, Express e SQLite.
 
-## Stack e pre-requisitos
+O projeto permite cadastrar, listar, consultar, editar, alterar o status e excluir tarefas, além de filtrar atividades por status e prioridade.
 
-Node.js 22 utilizado no CI, npm, Express 4 e SQLite via better-sqlite3 11.7.0. A declaracao engines >=22 nao comprova compatibilidade de todas as dependencias com cada versao futura. A instalacao Windows com Node 24 falhou na dependencia nativa; prefira Node 22 para reproduzir o ambiente testado. Na ausencia de binario pronto, o modulo pode exigir ferramentas de compilacao.
+O desenvolvimento combina documentação de planejamento, requisitos rastreáveis, histórias de usuário, backlog de issues, branches temáticas, Pull Requests e testes automatizados.
 
-UNLICENSED e a declaracao do package.json; nao foi adotada licenca aberta. O badge 0.1.0 nao comprova release ou tag publicada.
+## Sumário
 
-## Instalar a entrega do PR #43
+- [Objetivo e escopo](#objetivo-e-escopo)
+- [Tecnologias e pré-requisitos](#tecnologias-e-pré-requisitos)
+- [Instalação e execução](#instalação-e-execução)
+- [Configuração do ambiente](#configuração-do-ambiente)
+- [Persistência dos dados](#persistência-dos-dados)
+- [Funcionalidades e endpoints](#funcionalidades-e-endpoints)
+- [Exemplos de uso](#exemplos-de-uso)
+- [Testes e evidências](#testes-e-evidências)
+- [Organização do projeto](#organização-do-projeto)
+- [Documentação](#documentação)
+- [Fluxo de desenvolvimento](#fluxo-de-desenvolvimento)
+- [Versionamento e licença](#versionamento-e-licença)
+- [Pendências e limitações](#pendências-e-limitações)
 
-A entrega revisada esta em feature/issue-15-testes-readme enquanto o PR nao for integrado. main nao deve ser apresentada como contendo estas alteracoes.
+## Objetivo e escopo
+
+O TaskFlow Mini busca organizar tarefas pessoais por meio de uma API simples, com persistência local e regras explícitas para cadastro, edição e acompanhamento de atividades.
+
+### Funcionalidades implementadas
+
+- Cadastro de tarefas.
+- Listagem de tarefas.
+- Consulta individual por identificador.
+- Edição dos campos permitidos.
+- Alteração de status.
+- Exclusão de tarefas.
+- Filtros por status e prioridade.
+- Endpoint de saúde da aplicação.
+- Testes automatizados.
+
+### Fora da versão atual
+
+- Busca textual.
+- Paginação.
+- Interface gráfica.
+- Autenticação e autorização.
+- Implantação pública.
+- Migração automática de bancos antigos.
+
+Os itens fora da versão atual não devem ser considerados funcionalidades disponíveis. Sua implementação futura depende de planejamento e revisão do backlog.
+
+## Tecnologias e pré-requisitos
+
+| Tecnologia | Utilização |
+|---|---|
+| Node.js 22 | Ambiente utilizado nas execuções de CI documentadas |
+| npm | Instalação de dependências e execução dos scripts |
+| Express 4 | Servidor HTTP e rotas da API |
+| SQLite | Persistência local |
+| better-sqlite3 11.7.0 | Integração com o SQLite |
+| Git e GitHub | Versionamento, issues e Pull Requests |
+| GitHub Actions | Execução automatizada de testes |
+
+Utilize preferencialmente Node.js 22 para reproduzir o ambiente de CI documentado.
+
+A declaração `engines >=22` no projeto não comprova compatibilidade de todas as dependências com qualquer versão posterior do Node.js.
+
+A instalação no Windows com Node.js 24 apresentou falha na dependência nativa `better-sqlite3`. Quando não há um binário compatível disponível, essa dependência pode exigir ferramentas de compilação.
+
+## Instalação e execução
+
+As instruções abaixo utilizam a branch `main` e pressupõem que a entrega revisada tenha sido integrada nela.
+
+### 1. Clonar o repositório
 
 ```sh
-git clone --branch feature/issue-15-testes-readme https://github.com/Jaozni/taskflow-mini.git
+git clone --branch main [https://github.com/Jaozni/taskflow-mini.git](https://github.com/Jaozni/taskflow-mini.git)
 cd taskflow-mini
+```
+
+### 2. Instalar as dependências
+
+```sh
 npm ci
+```
+
+O arquivo `package-lock.json` está versionado. O comando `npm ci` utiliza esse arquivo e exige consistência com o `package.json`.
+
+### 3. Executar os testes
+
+```sh
 npm test
+```
+
+Confira o resultado antes de considerar o ambiente validado. A presença de testes no repositório não comprova que eles passaram na sua máquina.
+
+### 4. Iniciar a aplicação
+
+```sh
 npm start
 ```
 
-O package-lock.json esta versionado. npm ci instala conforme esse arquivo e falha em caso de incompatibilidade com package.json. O CI executa instalacao limpa no Linux com Node 22 e roda a suite duas vezes.
+A porta padrão configurada é `3000`.
+
+Em outro terminal, consulte o endpoint de saúde:
+
+```sh
+curl http://localhost:3000/health
+```
+
+Com o banco disponível, a resposta esperada é:
+
+```json
+{"status":"ok"}
+```
 
 ### Windows PowerShell
 
-Se npm.ps1 for bloqueado, use o executavel npm.cmd sem alterar a politica de scripts:
+Caso o PowerShell bloqueie `npm.ps1`, utilize `npm.cmd`:
 
 ```powershell
 npm.cmd ci
@@ -36,111 +128,7 @@ npm.cmd test
 npm.cmd start
 ```
 
-Esses comandos ainda dependem de ambiente compativel com better-sqlite3; npm.cmd resolve o bloqueio do PowerShell, nao a compilacao nativa. Nao use --ignore-scripts para declarar a aplicacao instalada: o SQLite precisa de seu binario funcional.
-
-## Ambiente e persistencia
-
-Porta padrao 3000. O processo le PORT e DATABASE_PATH; nao carrega .env automaticamente. Banco padrao ./data/tasks.db, criado antes de aceitar requisicoes. CREATE TABLE IF NOT EXISTS preserva registros. Nao ha migracao automatica de esquemas antigos; nao apague banco pessoal para testar.
-
-Shell POSIX:
-
-```sh
-PORT=3001 DATABASE_PATH=./data/tasks.db npm start
-```
-
-PowerShell:
+Para consultar a API em outro terminal:
 
 ```powershell
-$env:PORT = '3001'
-$env:DATABASE_PATH = './data/tasks.db'
-npm.cmd start
-```
-
-Dependencias, arquivos privados de ambiente e bancos locais sao ignorados pelo Git. Os testes usam bancos isolados em memoria ou arquivos temporarios.
-
-## Funcionalidades implementadas
-
-| Metodo | Endpoint | Operacao |
-|---|---|---|
-| GET | /health | Saude: 200 com {"status":"ok"}; 503 se banco indisponivel |
-| POST | /api/tasks | Cadastro, 201 |
-| GET | /api/tasks | Listagem e filtros |
-| GET | /api/tasks/:id | Consulta individual |
-| PUT | /api/tasks/:id | Substituicao dos campos editaveis |
-| PATCH | /api/tasks/:id/status | Alteracao de status |
-| DELETE | /api/tasks/:id | Exclusao permanente, 204 sem corpo |
-
-Status: pendente, em_andamento, concluida. Prioridades: baixa, media, alta. Cadastro aceita title, description e priority; descricao omitida vira null, prioridade omitida media e status inicial pendente. PUT exige title e priority; descricao omitida remove a descricao. ID, status e created_at nao sao editaveis por PUT. PATCH aceita somente status.
-
-Exemplos em shell POSIX:
-
-```sh
-curl http://localhost:3000/health
-curl -X POST http://localhost:3000/api/tasks -H 'Content-Type: application/json' -d '{"title":"Estudar","priority":"alta"}'
-curl 'http://localhost:3000/api/tasks?status=pendente&priority=alta'
-curl http://localhost:3000/api/tasks/1
-curl -X PUT http://localhost:3000/api/tasks/1 -H 'Content-Type: application/json' -d '{"title":"Revisar","priority":"media"}'
-curl -X PATCH http://localhost:3000/api/tasks/1/status -H 'Content-Type: application/json' -d '{"status":"concluida"}'
-curl -X DELETE http://localhost:3000/api/tasks/1
-```
-
-Exemplo PowerShell:
-
-```powershell
-Invoke-RestMethod http://localhost:3000/health
-Invoke-RestMethod -Method Post -Uri http://localhost:3000/api/tasks -ContentType 'application/json' -Body '{"title":"Estudar","priority":"alta"}'
-```
-
-Os IDs dependem dos dados existentes. Listagem por ID decrescente; filtros combinados usam AND. Entradas invalidas retornam 400, recursos inexistentes 404 e falhas internas 500 com message generica, sem detalhes SQL na resposta.
-
-## Testes e evidencias
-
-- test/api.test.js: CRUD, filtros, health, erros e persistencia apos reabrir arquivo.
-- test/acceptance.test.js: contratos, invalidos sem alteracao, integridade, idempotencia, transicoes e restricoes SQL.
-- test/startup.test.js: processo real, PORT configurada/invalida e falha SQLite.
-- test/performance.test.js: seis operacoes, tres medicoes por operacao, ate 100 tarefas, HTTP real e SQLite temporario em arquivo; limite 2000 ms.
-- test/delivery.test.js: texto com aparencia SQL preservado como dado e verificacao de nomes rastreados pelo Git.
-
-Commit a08ceb9333dfff4b351f2f30364f0793e3afea74 aprovado em dois jobs test:
-- https://github.com/Jaozni/taskflow-mini/actions/runs/42426116997
-- https://github.com/Jaozni/taskflow-mini/actions/runs/42426120857
-
-Essas evidencias nao antecipam o resultado de commits posteriores. Tempos reais e ambiente do teste de desempenho aparecem nos diagnosticos dos logs. Nao foram transcritos para uma tabela versionada. Execucao no runner nao comprova desempenho no computador do usuario nem instalacao Windows concluida.
-
-## Organizacao
-
-src/app.js configura Express sem listen; src/server.js inicia o processo; src/config/env.js valida ambiente; src/database.js inicializa SQLite. Rotas em src/routes/, controladores em src/controllers/, modelos em src/models/ e contratos em src/validators/tasks.js. Tratamento central de erros em app.js. Testes em test/.
-
-## Fluxo de trabalho e versoes
-
-| Branch | Finalidade | Destino do PR |
-|---|---|---|
-| feature/issue-XX-descricao | Funcionalidades e testes | develop |
-| docs/issue-XX-descricao | Documentacao | develop |
-| fix/issue-XX-descricao | Correcoes | develop |
-| develop | Integracao | main apos revisao |
-| main | Marcos estaveis | Sem commits diretos de desenvolvimento |
-
-Usar Conventional Commits, por exemplo feat(tasks): adicionar filtros (#14) ou docs: revisar entrega (#15). Relacionar PRs as issues e revisar criterios antes de fechar. Nao presumir fechamento automatico em develop. Tags anotadas vMAJOR.MINOR.PATCH somente apos validacao e autorizacao. Nenhum merge, tag ou release e realizado por este documento.
-
-## Documentacao
-
-- [Indice](docs/README.md)
-- [Project Charter](docs/project-charter.md)
-- [Requisitos](docs/requisitos.md)
-- [Casos de uso](docs/casos-de-uso.md)
-- [Historias](docs/user-stories.md)
-- [Arquitetura](docs/arquitetura.md)
-- [Rastreabilidade](docs/rastreabilidade.md)
-- [Checklist de entrega](docs/entrega.md)
-- [Validacao e limites](docs/validacao-entrega.md)
-
-## Pendencias e limites
-
-- Transcrever as 18 medicoes reais e ambiente para documento versionado; validar execucao local exigida pelo RNF10.
-- Instalacao Windows/Node 24 nao concluida; CI validado em Linux/Node 22.
-- PORT padrao revisada no codigo; bind real sem PORT na porta 3000 ainda nao testado.
-- Verificacao de nomes rastreados nao e auditoria de segredos no conteudo ou historico.
-- Revisar criterios das issues, CI do ultimo commit e autorizacao de integracao antes de fechar registros ou publicar marco.
-
-Busca, paginacao, interface grafica, autenticacao e implantacao publica nao estao implementadas nesta entrega. Nao ha migracao automatica de bancos antigos.
+Invoke-RestMethod -Uri http://localhost:3000/health
